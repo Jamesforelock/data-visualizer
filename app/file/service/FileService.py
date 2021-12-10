@@ -3,7 +3,7 @@
 
 import os
 import shutil
-from app.service.file.FileServiceException import FileServiceException
+from app.file.service.FileServiceException import FileServiceException
 from definitions import DATA_DIR
 
 
@@ -33,7 +33,7 @@ class FileService:
         os.remove(path)
 
     @staticmethod
-    def copy_file_to_data_dir(src_path: str):
+    def copy_file_to_data_dir(src_path: str) -> None:
         file_name = os.path.basename(src_path)
         dst_path = os.path.join(DATA_DIR, file_name)
         if os.path.isfile(dst_path):
