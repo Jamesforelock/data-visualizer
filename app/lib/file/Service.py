@@ -1,13 +1,12 @@
 # @author Denis Chuprynin <denischuprynin@gmail.com>
-
-
+import glob
 import os
 import shutil
-from app.file.service.FileServiceException import FileServiceException
+from app.lib.file.ServiceException import ServiceException
 from definitions import DATA_DIR
 
 
-class FileService:
+class Service:
     @staticmethod
     def get_data(file_name: str) -> list:
         path = os.path.join(DATA_DIR, file_name)
@@ -22,13 +21,16 @@ class FileService:
 
     @staticmethod
     def get_file_list() -> list:
-        return next(os.walk(DATA_DIR), (None, None, []))[2]
+        files = glob.glob(DATA_DIR + '/*.csv')
+        files.sort(key=os.path.getctime)
+        files = [os.path.basename(file) for file in files]
+        return files
 
     @staticmethod
     def remove_file(file_name: str) -> None:
         path = os.path.join(DATA_DIR, file_name)
         if not os.path.isfile(path):
-            raise FileServiceException(f'Файла с именем {file_name} не существует')
+            raise ServiceException(f'Файла с именем {file_name} не существует')
 
         os.remove(path)
 
@@ -37,9 +39,9 @@ class FileService:
         file_name = os.path.basename(src_path)
         dst_path = os.path.join(DATA_DIR, file_name)
         if os.path.isfile(dst_path):
-            raise FileServiceException(f'Файл с именем {file_name} уже добавлен')
-        if not FileService.validate_file_columns_count(src_path):
-            raise FileServiceException(f'Количество столбцов в таблице должно быть = 2')
+            raise ServiceException(f'Файл с именем {file_name} уже добавлен')
+        if not Service.validate_file_columns_count(src_path):
+            raise ServiceException(f'Количество столбцов в таблице должно быть = 2')
 
         shutil.copy(src_path, DATA_DIR)
 

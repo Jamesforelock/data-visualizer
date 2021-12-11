@@ -2,25 +2,25 @@
 
 
 import numpy as np
-from app.chart.Chart import Chart
+from app.lib.chart.Chart import Chart
 import matplotlib.pyplot as plt
 
 
-class ChartService:
+class Service:
     PIE_CHART_TYPE = 'P'
     BAR_CHART_TYPE = 'B'
     LINE_CHART_TYPE = 'L'
 
     @staticmethod
     def visualize_chart(chart: Chart) -> None:
-        if chart.chart_type == ChartService.PIE_CHART_TYPE:
-            ChartService._visualize_pie_chart(chart)
+        if chart.chart_type == Service.PIE_CHART_TYPE:
+            Service._visualize_pie_chart(chart)
             return
-        if chart.chart_type == ChartService.BAR_CHART_TYPE:
-            ChartService._visualize_bar_chart(chart)
+        if chart.chart_type == Service.BAR_CHART_TYPE:
+            Service._visualize_bar_chart(chart)
             return
-        if chart.chart_type == ChartService.LINE_CHART_TYPE:
-            ChartService._visualize_line_chart(chart)
+        if chart.chart_type == Service.LINE_CHART_TYPE:
+            Service._visualize_line_chart(chart)
 
     @staticmethod
     def _visualize_pie_chart(chart: Chart) -> None:
