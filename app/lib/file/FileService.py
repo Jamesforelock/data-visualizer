@@ -1,12 +1,14 @@
 # @author Denis Chuprynin <denischuprynin@gmail.com>
+
+
 import glob
 import os
 import shutil
-from app.lib.file.ServiceException import ServiceException
+from app.lib.file.FileServiceException import FileServiceException
 from definitions import DATA_DIR
 
 
-class Service:
+class FileService:
     @staticmethod
     def get_data(file_name: str) -> list:
         path = os.path.join(DATA_DIR, file_name)
@@ -30,7 +32,7 @@ class Service:
     def remove_file(file_name: str) -> None:
         path = os.path.join(DATA_DIR, file_name)
         if not os.path.isfile(path):
-            raise ServiceException(f'Файла с именем {file_name} не существует')
+            raise FileServiceException(f'Файла с именем {file_name} не существует')
 
         os.remove(path)
 
@@ -39,9 +41,9 @@ class Service:
         file_name = os.path.basename(src_path)
         dst_path = os.path.join(DATA_DIR, file_name)
         if os.path.isfile(dst_path):
-            raise ServiceException(f'Файл с именем {file_name} уже добавлен')
-        if not Service.validate_file_columns_count(src_path):
-            raise ServiceException(f'Количество столбцов в таблице должно быть = 2')
+            raise FileServiceException(f'Файл с именем {file_name} уже добавлен')
+        if not FileService.validate_file_columns_count(src_path):
+            raise FileServiceException(f'Количество столбцов в таблице должно быть = 2')
 
         shutil.copy(src_path, DATA_DIR)
 

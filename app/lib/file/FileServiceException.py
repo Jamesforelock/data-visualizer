@@ -1,5 +1,5 @@
 # @author Denis Chuprynin <denischuprynin@gmail.com>
 
 
-class ServiceException(Exception):
+class FileServiceException(Exception):
     pass

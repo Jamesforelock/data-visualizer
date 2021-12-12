@@ -2,14 +2,15 @@
 
 
 from PyQt5 import QtWidgets
-from app.lib.file.Service import Service as FileService
-from app.lib.file.ServiceException import ServiceException as FileServiceException
-from app.ui.components.filelist.View import View
+from app.lib.file.FileService import FileService
+from app.lib.file.FileServiceException import FileServiceException
+from app.ui.components.filelist.FileListView import FileListView
+from app.ui.components.dialogbox.DialogBoxComponent import DialogBoxComponent
 
 
-class Component:
+class FileListComponent:
     def __init__(self, object_name: str) -> None:
-        self.view = View(object_name)
+        self.view = FileListView(object_name)
         self.file_list = self.view.findChild(QtWidgets.QListWidget, 'list')
         self._register_event_handlers()
         self._update_list()
@@ -23,6 +24,11 @@ class Component:
 
         remove_button = self.view.findChild(QtWidgets.QPushButton, 'remove_button')
         remove_button.clicked.connect(lambda: self._remove_selected_file())
+
+        self.file_list.currentItemChanged.connect(
+            lambda: self.view.selected_file_name_changed.emit(
+                self.file_list.currentItem().text() if self.file_list.currentItem() is not None else '')
+        )
 
     def _update_list(self) -> None:
         self.file_list.clear()
@@ -45,19 +51,9 @@ class Component:
         try:
             FileService.copy_file_to_data_dir(src_path)
             self._update_list()
-            msg = QtWidgets.QMessageBox()
-            msg.setIcon(QtWidgets.QMessageBox.Information)
-            msg.setWindowTitle('Успех')
-            msg.setText('Файл успешно добавлен')
-            msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
-            msg.exec()
+            DialogBoxComponent('Успех', 'Файл успешно добавлен')()
         except FileServiceException as e:
-            msg = QtWidgets.QMessageBox()
-            msg.setIcon(QtWidgets.QMessageBox.Critical)
-            msg.setWindowTitle('Ошибка')
-            msg.setText(str(e))
-            msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
-            msg.exec()
+            DialogBoxComponent('Ошибка', str(e), 'error')()
 
     def _remove_selected_file(self) -> None:
         if self.file_list.currentItem() is None:
@@ -70,9 +66,4 @@ class Component:
                 self.selected_file_name = ''
                 return
         except FileServiceException as e:
-            msg = QtWidgets.QMessageBox()
-            msg.setIcon(QtWidgets.QMessageBox.Critical)
-            msg.setWindowTitle('Ошибка')
-            msg.setText(str(e))
-            msg.setStandardButtons(QtWidgets.QMessageBox.Ok)
-            msg.exec()
+            DialogBoxComponent('Ошибка', str(e), 'error')()
