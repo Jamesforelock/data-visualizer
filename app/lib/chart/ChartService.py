@@ -4,6 +4,7 @@
 import numpy as np
 from app.lib.chart.Chart import Chart
 import matplotlib.pyplot as plt
+from app.lib.chart.ChartServiceException import ChartServiceException
 
 
 class ChartService:
@@ -13,14 +14,17 @@ class ChartService:
 
     @staticmethod
     def visualize_chart(chart: Chart) -> None:
-        if chart.chart_type == ChartService.PIE_CHART_TYPE:
-            ChartService._visualize_pie_chart(chart)
-            return
-        if chart.chart_type == ChartService.BAR_CHART_TYPE:
-            ChartService._visualize_bar_chart(chart)
-            return
-        if chart.chart_type == ChartService.LINE_CHART_TYPE:
-            ChartService._visualize_line_chart(chart)
+        try:
+            if chart.chart_type == ChartService.PIE_CHART_TYPE:
+                ChartService._visualize_pie_chart(chart)
+                return
+            if chart.chart_type == ChartService.BAR_CHART_TYPE:
+                ChartService._visualize_bar_chart(chart)
+                return
+            if chart.chart_type == ChartService.LINE_CHART_TYPE:
+                ChartService._visualize_line_chart(chart)
+        except Exception:
+            raise ChartServiceException('Не удалось визуализировать данные')
 
     @staticmethod
     def _visualize_pie_chart(chart: Chart) -> None:

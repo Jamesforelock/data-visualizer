@@ -4,6 +4,8 @@
 from PyQt5 import QtWidgets
 from app.lib.file.FileService import FileService
 from app.lib.file.FileServiceException import FileServiceException
+from app.lib.mysql.MysqlConnectionCreator import MysqlConnectionCreator
+from app.lib.mysql.MysqlService import MysqlService
 from app.ui.components.filelist.FileListView import FileListView
 from app.ui.components.dialogbox.DialogBoxComponent import DialogBoxComponent
 
@@ -25,6 +27,9 @@ class FileListComponent:
         remove_button = self.view.findChild(QtWidgets.QPushButton, 'remove_button')
         remove_button.clicked.connect(lambda: self._remove_selected_file())
 
+        mysql_export_button = self.view.findChild(QtWidgets.QPushButton, 'mysql_export_button')
+        mysql_export_button.clicked.connect(lambda: self._create_csv_from_mysql_table())
+
         self.file_list.currentItemChanged.connect(
             lambda: self.view.selected_file_name_changed.emit(
                 self.file_list.currentItem().text() if self.file_list.currentItem() is not None else '')
@@ -44,6 +49,27 @@ class FileListComponent:
             return ''
 
         return dlg.selectedFiles()[0]
+
+    def _create_csv_from_mysql_table(self) -> None:
+        table_name = self._input_table_name()
+        if table_name == '':
+            return
+
+        create_header = self.view.findChild(QtWidgets.QCheckBox, 'create_header_checkbox').isChecked()
+        try:
+            connection = MysqlConnectionCreator().get_connection()
+            mysql_service = MysqlService(connection)
+            mysql_service.create_csv_from_table(table_name, create_header)
+            self._update_list()
+        except Exception as e:
+            DialogBoxComponent('Ошибка', str(e), 'error')()
+
+    def _input_table_name(self) -> str:
+        dlg = QtWidgets.QInputDialog()
+        table_name, ok = dlg.getText(self.view, 'Получение данных из таблицы MySQL', 'Введите название таблицы')
+        if not ok:
+            return ''
+        return table_name.strip()
 
     def _add_file(self, src_path: str) -> None:
         if not src_path:

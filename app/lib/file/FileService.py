@@ -37,10 +37,10 @@ class FileService:
         os.remove(path)
 
     @staticmethod
-    def copy_file_to_data_dir(src_path: str) -> None:
+    def copy_file_to_data_dir(src_path: str, prevent_replacement=True) -> None:
         file_name = os.path.basename(src_path)
         dst_path = os.path.join(DATA_DIR, file_name)
-        if os.path.isfile(dst_path):
+        if os.path.isfile(dst_path) and prevent_replacement:
             raise FileServiceException(f'Файл с именем {file_name} уже добавлен')
         if not FileService.validate_file_columns_count(src_path):
             raise FileServiceException(f'Количество столбцов в таблице должно быть = 2')

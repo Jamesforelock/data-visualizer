@@ -3,6 +3,7 @@
 
 from PyQt5 import QtWidgets
 from app.lib.chart.Chart import Chart
+from app.lib.chart.ChartServiceException import ChartServiceException
 from app.lib.file.FileService import FileService
 from app.lib.chart.ChartService import ChartService
 from app.ui.components.chartgenerator.ChartGeneratorView import ChartGeneratorView
@@ -51,7 +52,7 @@ class ChartGeneratorComponent:
 
     def _visualize(self) -> None:
         chart_type = self.selected_type
-        name = self.view.findChild(QtWidgets.QLineEdit, 'name').text()
+        name = self.view.findChild(QtWidgets.QLineEdit, 'name').text().strip()
         if not name:
             DialogBoxComponent('Ошибка', 'Отображаемый график должен иметь название', 'error')()
             return
@@ -67,4 +68,7 @@ class ChartGeneratorComponent:
         data = FileService.get_data(file_name)
 
         chart = Chart(chart_type, data, [width, height], name)
-        ChartService.visualize_chart(chart)
+        try:
+            ChartService.visualize_chart(chart)
+        except ChartServiceException as e:
+            DialogBoxComponent('Ошибка', str(e), 'error')()

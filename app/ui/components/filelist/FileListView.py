@@ -35,17 +35,30 @@ class FileListView(QtWidgets.QWidget):
         buttons_layout = QtWidgets.QVBoxLayout()
         buttons_layout.setAlignment(Qt.AlignTop)
 
+        buttons_list = list()
+
         add_button = QtWidgets.QPushButton('Добавить файл')
         add_button.setObjectName('add_button')
-        add_button.setFont(QFont('Arial'))
-        add_button.setCursor(QCursor(Qt.PointingHandCursor))
-        buttons_layout.addWidget(add_button)
+        buttons_list.append(add_button)
 
         remove_button = QtWidgets.QPushButton('Удалить файл')
         remove_button.setObjectName('remove_button')
-        remove_button.setFont(QFont('Arial'))
-        remove_button.setCursor(QCursor(Qt.PointingHandCursor))
-        buttons_layout.addWidget(remove_button)
+        buttons_list.append(remove_button)
+
+        mysql_export_button = QtWidgets.QPushButton('Создать файл из таблицы MySQL')
+        mysql_export_button.setObjectName('mysql_export_button')
+        buttons_list.append(mysql_export_button)
+
+        for button in buttons_list:
+            button.setFont(QFont('Arial'))
+            button.setCursor((QCursor(Qt.PointingHandCursor)))
+            buttons_layout.addWidget(button)
+
+        create_header_checkbox = QtWidgets.QCheckBox('Учитывать шапку при\nсоздании из таблицы')
+        create_header_checkbox.setFont(QFont('Arial', 10))
+        create_header_checkbox.setCursor((QCursor(Qt.PointingHandCursor)))
+        create_header_checkbox.setObjectName('create_header_checkbox')
+        buttons_layout.addWidget(create_header_checkbox)
 
         buttons.setLayout(buttons_layout)
 
