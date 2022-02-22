@@ -43,7 +43,7 @@ class FileService:
         if os.path.isfile(dst_path) and prevent_replacement:
             raise FileServiceException(f'Файл с именем {file_name} уже добавлен')
         if not FileService.validate_file_columns_count(src_path):
-            raise FileServiceException(f'Количество столбцов в таблице должно быть = 2')
+            raise FileServiceException(f'Количество столбцов в таблице должно быть >= 2')
 
         shutil.copy(src_path, DATA_DIR)
 
@@ -52,7 +52,7 @@ class FileService:
         file = open(path, 'r')
         for line in file:
             item = line.replace('\n', '').split(',')
-            if len(item) == 2:
+            if len(item) >= 2:
                 continue
 
             file.close()

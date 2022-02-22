@@ -15,7 +15,7 @@ class View(QtWidgets.QWidget):
         self._init_content()
 
     def _init_window(self) -> None:
-        self.setFixedSize(600, 350)
+        self.setFixedSize(600, 480)
         self.setWindowTitle('Data Visualizer')
 
     def _init_content(self) -> None:

@@ -13,7 +13,7 @@ from app.ui.components.dialogbox.DialogBoxComponent import DialogBoxComponent
 class ChartGeneratorComponent:
     def __init__(self, object_name: str) -> None:
         self.view = ChartGeneratorView(object_name)
-        self.selected_type = 'P'
+        self.selected_type = ChartService.DOT_CHART_TYPE
         self.selected_file_name = ''
         self._register_event_handlers()
 
@@ -46,6 +46,17 @@ class ChartGeneratorComponent:
         radiobutton = self.view.sender()
         if radiobutton.isChecked():
             self.selected_type = radiobutton.type
+            z_function = self.view.findChild(QtWidgets.QLineEdit, 'z_function')
+            if self._is_selected_surface_type():
+                z_function.show()
+                return
+            z_function.hide()
+
+    def _is_selected_surface_type(self) -> bool:
+        if self.selected_type == ChartService.WIREFRAME_CHART_TYPE \
+                or self.selected_type == ChartService.SURFACE_CHART_3D_TYPE:
+            return True
+        return False
 
     def _set_selected_file_name(self, file_name) -> None:
         self.selected_file_name = file_name
@@ -67,7 +78,12 @@ class ChartGeneratorComponent:
 
         data = FileService.get_data(file_name)
 
-        chart = Chart(chart_type, data, [width, height], name)
+        z_function = self.view.findChild(QtWidgets.QLineEdit, 'z_function').text().strip()
+        if self._is_selected_surface_type() and not z_function:
+            DialogBoxComponent('Ошибка', 'Для отображения поверхности необходимо указать функцию z-значений', 'error')()
+            return
+
+        chart = Chart(chart_type, data, [width, height], name, z_function)
         try:
             ChartService.visualize_chart(chart)
         except ChartServiceException as e:
