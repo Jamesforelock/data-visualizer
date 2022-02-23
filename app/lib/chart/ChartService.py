@@ -56,8 +56,8 @@ class ChartService:
 
     @staticmethod
     def _visualize_dot_chart(chart: Chart) -> None:
-        x_label = chart.data[0][0]
-        y_label = chart.data[0][1]
+        x_label = chart.data[0][0].strip(' "\'\t\r\n')
+        y_label = chart.data[0][1].strip(' "\'\t\r\n')
         x_values = list()
         y_values = list()
         for item in chart.data[1:]:
@@ -73,17 +73,22 @@ class ChartService:
         plt.show(block=False)
 
     @staticmethod
+    def func(pct, allvalues):
+        absolute = int(pct / 100. * np.sum(allvalues))
+        return "{:.1f}%\n({:d})".format(pct, absolute)
+
+    @staticmethod
     def _visualize_pie_chart(chart: Chart) -> None:
         labels = list()
         sizes = list()
         for item in chart.data:
-            labels.append(item[0])
+            labels.append(item[0].strip(' "\'\t\r\n'))
             sizes.append(float(item[1]))
 
         fig, ax = plt.subplots(figsize=(chart.window_size[0], chart.window_size[1]))
         fig.canvas.set_window_title(chart.window_title)
         fig.suptitle(chart.window_title)
-        ax.pie(sizes, labels=labels, autopct='%1.1f%%', startangle=90)
+        ax.pie(sizes, labels=labels, autopct=lambda pct: ChartService.func(pct, sizes), startangle=90)
         ax.axis('equal')
         plt.show(block=False)
 
@@ -94,14 +99,14 @@ class ChartService:
         field_names = list()
         field_values = list()
         for item in chart.data[1:]:
-            field_names.append(item[0])
+            field_names.append(item[0].strip(' "\'\t\r\n'))
             field_values.append(float(item[1]))
 
         fig, ax = plt.subplots(figsize=(chart.window_size[0], chart.window_size[1]))
         fig.canvas.set_window_title(chart.window_title)
         fig.suptitle(chart.window_title)
-        ax.set_title(field_names_label)
-        ax.set_ylabel(field_values_label)
+        ax.set_title(field_names_label.strip(' "\'\t\r\n'))
+        ax.set_ylabel(field_values_label.strip(' "\'\t\r\n'))
         colors = []
         for i in range(0, len(field_names) + 1):
             colors.append(tuple(np.random.choice(range(0, 2), size=3)))
@@ -110,8 +115,8 @@ class ChartService:
 
     @staticmethod
     def _visualize_line_chart(chart: Chart) -> None:
-        x_label = chart.data[0][0]
-        y_label = chart.data[0][1]
+        x_label = chart.data[0][0].strip(' "\'\t\r\n')
+        y_label = chart.data[0][1].strip(' "\'\t\r\n')
         x_values = list()
         y_values = list()
         for item in chart.data[1:]:
@@ -128,9 +133,9 @@ class ChartService:
 
     @staticmethod
     def _visualize_dot_3d_chart(chart: Chart) -> None:
-        x_label = chart.data[0][0]
-        y_label = chart.data[0][1]
-        z_label = chart.data[0][2]
+        x_label = chart.data[0][0].strip(' "\'\t\r\n')
+        y_label = chart.data[0][1].strip(' "\'\t\r\n')
+        z_label = chart.data[0][2].strip(' "\'\t\r\n')
         x_values = list()
         y_values = list()
         z_values = list()
@@ -153,9 +158,9 @@ class ChartService:
 
     @staticmethod
     def _visualize_line_3d_chart(chart: Chart) -> None:
-        x_label = chart.data[0][0]
-        y_label = chart.data[0][1]
-        z_label = chart.data[0][2]
+        x_label = chart.data[0][0].strip(' "\'\t\r\n')
+        y_label = chart.data[0][1].strip(' "\'\t\r\n')
+        z_label = chart.data[0][2].strip(' "\'\t\r\n')
         x_values = list()
         y_values = list()
         z_values = list()
@@ -180,8 +185,8 @@ class ChartService:
         if not chart.z_function:
             raise ChartServiceException('Не удалось визуализировать данные')
 
-        x_label = chart.data[0][0]
-        y_label = chart.data[0][1]
+        x_label = chart.data[0][0].strip(' "\'\t\r\n')
+        y_label = chart.data[0][1].strip(' "\'\t\r\n')
         x_values = list()
         y_values = list()
         for item in chart.data[1:]:
@@ -216,8 +221,8 @@ class ChartService:
         if not chart.z_function:
             raise ChartServiceException('Не удалось визуализировать данные')
 
-        x_label = chart.data[0][0]
-        y_label = chart.data[0][1]
+        x_label = chart.data[0][0].strip(' "\'\t\r\n')
+        y_label = chart.data[0][1].strip(' "\'\t\r\n')
         x_values = list()
         y_values = list()
         for item in chart.data[1:]:

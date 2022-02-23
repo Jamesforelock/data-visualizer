@@ -15,6 +15,8 @@ class FileService:
         file = open(path, 'r')
         items = list()
         for line in file:
+            if not line.strip():
+                continue
             item = line.replace('\n', '').split(',')
             items.append(item)
 
@@ -51,6 +53,8 @@ class FileService:
     def validate_file_columns_count(path: str) -> bool:
         file = open(path, 'r')
         for line in file:
+            if not line.strip():
+                continue
             item = line.replace('\n', '').split(',')
             if len(item) >= 2:
                 continue
