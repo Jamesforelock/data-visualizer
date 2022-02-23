@@ -5,10 +5,12 @@ from PyQt5 import QtWidgets
 from PyQt5.QtCore import pyqtSignal, Qt
 from PyQt5.QtGui import QIntValidator, QFont
 from app.lib.chart.ChartService import ChartService
+from app.lib.chart.SurfaceService import SurfaceService
 
 
 class ChartGeneratorView(QtWidgets.QWidget):
     selected_file_name_changed = pyqtSignal(str)
+    is_selected_surface_type = pyqtSignal(bool)
 
     def __init__(self, object_name: str) -> None:
         super(ChartGeneratorView, self).__init__()
@@ -21,7 +23,7 @@ class ChartGeneratorView(QtWidgets.QWidget):
         layout.setAlignment(Qt.AlignTop)
         column = QtWidgets.QWidget()
         column_layout = QtWidgets.QVBoxLayout()
-        column_layout.setAlignment(Qt.AlignVCenter)
+        column_layout.setAlignment(Qt.AlignTop)
         column_layout.addWidget(self._get_chart_settings_widget())
         visualize_button = QtWidgets.QPushButton('Визуализировать')
         visualize_button.setObjectName('visualize_button')
@@ -35,6 +37,7 @@ class ChartGeneratorView(QtWidgets.QWidget):
         chart_type = QtWidgets.QWidget()
 
         layout = QtWidgets.QVBoxLayout()
+        layout.setAlignment(Qt.AlignTop)
 
         label = QtWidgets.QLabel('Тип графика')
         layout.addWidget(label)
@@ -46,8 +49,8 @@ class ChartGeneratorView(QtWidgets.QWidget):
             ChartService.PIE_CHART_TYPE: 'Круговая диаграмма',
             ChartService.DOT_CHART_3D_TYPE: 'Точечный 3D-график',
             ChartService.LINE_CHART_3D_TYPE: 'Линейный 3D-график',
-            ChartService.WIREFRAME_CHART_TYPE: 'Каркасная поверхность',
-            ChartService.SURFACE_CHART_3D_TYPE: 'Поверхность',
+            SurfaceService.WIREFRAME_TYPE: 'Каркасная поверхность',
+            SurfaceService.SURFACE_TYPE: 'Поверхность',
         }
 
         for radiobutton_type, name in radiobuttons.items():
@@ -68,11 +71,26 @@ class ChartGeneratorView(QtWidgets.QWidget):
         chart_setttings_layout = QtWidgets.QVBoxLayout()
         chart_setttings_layout.setContentsMargins(0, 0, 0, 0)
 
-        chart_name = QtWidgets.QLineEdit()
-        chart_name.setObjectName('name')
-        chart_name.setFixedHeight(30)
-        chart_name.setPlaceholderText('Название графика')
-        chart_setttings_layout.addWidget(chart_name)
+        x_section = QtWidgets.QLineEdit()
+        x_section.setObjectName('x_section')
+        x_section.setFixedHeight(30)
+        x_section.setPlaceholderText('Отрезок x (указывать через запятую)')
+        x_section.hide()
+        chart_setttings_layout.addWidget(x_section)
+
+        y_section = QtWidgets.QLineEdit()
+        y_section.setObjectName('y_section')
+        y_section.setFixedHeight(30)
+        y_section.setPlaceholderText('Отрезок y (указывать через запятую)')
+        y_section.hide()
+        chart_setttings_layout.addWidget(y_section)
+
+        points_number = QtWidgets.QLineEdit()
+        points_number.setObjectName('points_number')
+        points_number.setFixedHeight(30)
+        points_number.setPlaceholderText('Количество точек')
+        points_number.hide()
+        chart_setttings_layout.addWidget(points_number)
 
         z_function = QtWidgets.QLineEdit()
         z_function.setObjectName('z_function')
@@ -80,6 +98,14 @@ class ChartGeneratorView(QtWidgets.QWidget):
         z_function.setPlaceholderText('Функция z-значений')
         z_function.hide()
         chart_setttings_layout.addWidget(z_function)
+
+        width_label = QtWidgets.QLabel('Название графика:')
+        chart_setttings_layout.addWidget(width_label)
+
+        chart_name = QtWidgets.QLineEdit()
+        chart_name.setObjectName('name')
+        chart_name.setFixedHeight(30)
+        chart_setttings_layout.addWidget(chart_name)
 
         size = QtWidgets.QWidget()
         size_layout = QtWidgets.QVBoxLayout()

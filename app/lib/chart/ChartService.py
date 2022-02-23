@@ -5,7 +5,6 @@ import numpy as np
 from app.lib.chart.Chart import Chart
 import matplotlib.pyplot as plt
 from app.lib.chart.ChartServiceException import ChartServiceException
-from py_expression_eval import Parser
 
 
 class ChartService:
@@ -18,8 +17,6 @@ class ChartService:
     # 3D charts.
     DOT_CHART_3D_TYPE = 'D3'
     LINE_CHART_3D_TYPE = 'L3'
-    WIREFRAME_CHART_TYPE = 'W'
-    SURFACE_CHART_3D_TYPE = 'S'
 
     @staticmethod
     def visualize_chart(chart: Chart) -> None:
@@ -45,12 +42,6 @@ class ChartService:
             if chart.chart_type == ChartService.LINE_CHART_3D_TYPE:
                 ChartService._visualize_line_3d_chart(chart)
                 return
-            if chart.chart_type == ChartService.WIREFRAME_CHART_TYPE:
-                ChartService._visualize_wireframe_chart(chart)
-                return
-            if chart.chart_type == ChartService.SURFACE_CHART_3D_TYPE:
-                ChartService._visualize_surface_chart(chart)
-                return
         except Exception:
             raise ChartServiceException('Не удалось визуализировать данные')
 
@@ -73,7 +64,7 @@ class ChartService:
         plt.show(block=False)
 
     @staticmethod
-    def func(pct, allvalues):
+    def _format_pie_chart_values(pct, allvalues):
         absolute = int(pct / 100. * np.sum(allvalues))
         return "{:.1f}%\n({:d})".format(pct, absolute)
 
@@ -88,7 +79,7 @@ class ChartService:
         fig, ax = plt.subplots(figsize=(chart.window_size[0], chart.window_size[1]))
         fig.canvas.set_window_title(chart.window_title)
         fig.suptitle(chart.window_title)
-        ax.pie(sizes, labels=labels, autopct=lambda pct: ChartService.func(pct, sizes), startangle=90)
+        ax.pie(sizes, labels=labels, autopct=lambda pct: ChartService._format_pie_chart_values(pct, sizes), startangle=90)
         ax.axis('equal')
         plt.show(block=False)
 
@@ -178,76 +169,4 @@ class ChartService:
         ax.set_zlabel(z_label)
 
         ax.plot(x_values, y_values, z_values)
-        plt.show(block=False)
-
-    @staticmethod
-    def _visualize_wireframe_chart(chart: Chart) -> None:
-        if not chart.z_function:
-            raise ChartServiceException('Не удалось визуализировать данные')
-
-        x_label = chart.data[0][0].strip(' "\'\t\r\n')
-        y_label = chart.data[0][1].strip(' "\'\t\r\n')
-        x_values = list()
-        y_values = list()
-        for item in chart.data[1:]:
-            x_values.append(float(item[0]))
-            y_values.append(float(item[1]))
-
-        fig = plt.figure(figsize=(chart.window_size[0], chart.window_size[1]))
-        ax = fig.add_subplot(projection='3d')
-        fig.canvas.set_window_title(chart.window_title)
-        fig.suptitle(chart.window_title)
-        ax.set_xlabel(x_label)
-        ax.set_ylabel(y_label)
-
-        x_values = np.array(x_values)
-        y_values = np.array(y_values)
-        x_grid, y_grid = np.meshgrid(x_values, y_values)
-
-        parser = Parser()
-        for method in dir(np):
-            parser.ops1[method] = getattr(np, method)
-
-        try:
-            z_values = parser.parse(chart.z_function).evaluate({'x': x_grid, 'y': y_grid})
-            ax.plot_wireframe(x_grid, y_grid, z_values)
-        except Exception:
-            plt.close(fig)
-            raise ChartServiceException('Не удалось визуализировать данные')
-        plt.show(block=False)
-
-    @staticmethod
-    def _visualize_surface_chart(chart: Chart) -> None:
-        if not chart.z_function:
-            raise ChartServiceException('Не удалось визуализировать данные')
-
-        x_label = chart.data[0][0].strip(' "\'\t\r\n')
-        y_label = chart.data[0][1].strip(' "\'\t\r\n')
-        x_values = list()
-        y_values = list()
-        for item in chart.data[1:]:
-            x_values.append(float(item[0]))
-            y_values.append(float(item[1]))
-
-        fig = plt.figure(figsize=(chart.window_size[0], chart.window_size[1]))
-        ax = fig.add_subplot(projection='3d')
-        fig.canvas.set_window_title(chart.window_title)
-        fig.suptitle(chart.window_title)
-        ax.set_xlabel(x_label)
-        ax.set_ylabel(y_label)
-
-        x_values = np.array(x_values)
-        y_values = np.array(y_values)
-        x_grid, y_grid = np.meshgrid(x_values, y_values)
-
-        parser = Parser()
-        for method in dir(np):
-            parser.ops1[method] = getattr(np, method)
-
-        try:
-            z_values = parser.parse(chart.z_function).evaluate({'x': x_grid, 'y': y_grid})
-            ax.plot_surface(x_grid, y_grid, z_values)
-        except Exception:
-            plt.close(fig)
-            raise ChartServiceException('Не удалось визуализировать данные')
         plt.show(block=False)

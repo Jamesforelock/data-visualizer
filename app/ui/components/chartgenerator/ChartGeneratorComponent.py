@@ -4,6 +4,9 @@
 from PyQt5 import QtWidgets
 from app.lib.chart.Chart import Chart
 from app.lib.chart.ChartServiceException import ChartServiceException
+from app.lib.chart.Surface import Surface
+from app.lib.chart.SurfaceService import SurfaceService
+from app.lib.chart.SurfaceServiceException import SurfaceServiceException
 from app.lib.file.FileService import FileService
 from app.lib.chart.ChartService import ChartService
 from app.ui.components.chartgenerator.ChartGeneratorView import ChartGeneratorView
@@ -46,23 +49,36 @@ class ChartGeneratorComponent:
         radiobutton = self.view.sender()
         if radiobutton.isChecked():
             self.selected_type = radiobutton.type
-            z_function = self.view.findChild(QtWidgets.QLineEdit, 'z_function')
-            if self._is_selected_surface_type():
-                z_function.show()
-                return
-            z_function.hide()
+            self.view.is_selected_surface_type.emit(self._is_selected_surface_type())
+            self._toggle_surface_params()
 
     def _is_selected_surface_type(self) -> bool:
-        if self.selected_type == ChartService.WIREFRAME_CHART_TYPE \
-                or self.selected_type == ChartService.SURFACE_CHART_3D_TYPE:
+        if self.selected_type == SurfaceService.WIREFRAME_TYPE \
+                or self.selected_type == SurfaceService.SURFACE_TYPE:
             return True
         return False
+
+    def _toggle_surface_params(self) -> None:
+        x_section = self.view.findChild(QtWidgets.QLineEdit, 'x_section')
+        y_section = self.view.findChild(QtWidgets.QLineEdit, 'y_section')
+        points_number = self.view.findChild(QtWidgets.QLineEdit, 'points_number')
+        z_function = self.view.findChild(QtWidgets.QLineEdit, 'z_function')
+        if self._is_selected_surface_type():
+            x_section.show()
+            y_section.show()
+            points_number.show()
+            z_function.show()
+            return
+
+        x_section.hide()
+        y_section.hide()
+        points_number.hide()
+        z_function.hide()
 
     def _set_selected_file_name(self, file_name) -> None:
         self.selected_file_name = file_name
 
     def _visualize(self) -> None:
-        chart_type = self.selected_type
         name = self.view.findChild(QtWidgets.QLineEdit, 'name').text().strip()
         if not name:
             DialogBoxComponent('Ошибка', 'Отображаемый график должен иметь название', 'error')()
@@ -71,6 +87,13 @@ class ChartGeneratorComponent:
         width = int(self.view.findChild(QtWidgets.QLineEdit, 'width').text())
         height = int(self.view.findChild(QtWidgets.QLineEdit, 'height').text())
 
+        if self._is_selected_surface_type():
+            self._visualize_surface(width, height, name)
+            return
+
+        self._visualize_chart(width, height, name)
+
+    def _visualize_chart(self, width: int, height: int, name: str) -> None:
         file_name = self.selected_file_name
         if not file_name:
             DialogBoxComponent('Ошибка', 'Для отображения графика необходимо выбрать файл с данными', 'error')()
@@ -78,13 +101,33 @@ class ChartGeneratorComponent:
 
         data = FileService.get_data(file_name)
 
-        z_function = self.view.findChild(QtWidgets.QLineEdit, 'z_function').text().strip()
-        if self._is_selected_surface_type() and not z_function:
-            DialogBoxComponent('Ошибка', 'Для отображения поверхности необходимо указать функцию z-значений', 'error')()
-            return
-
-        chart = Chart(chart_type, data, [width, height], name, z_function)
+        chart = Chart(self.selected_type, data, [width, height], name)
         try:
             ChartService.visualize_chart(chart)
         except ChartServiceException as e:
+            DialogBoxComponent('Ошибка', str(e), 'error')()
+
+    def _visualize_surface(self, width: int, height: int, name: str) -> None:
+        x_section = self.view.findChild(QtWidgets.QLineEdit, 'x_section').text().strip()
+        y_section = self.view.findChild(QtWidgets.QLineEdit, 'y_section').text().strip()
+        points_number = self.view.findChild(QtWidgets.QLineEdit, 'points_number').text().strip()
+        z_function = self.view.findChild(QtWidgets.QLineEdit, 'z_function').text().strip()
+        if '' in [x_section, y_section, points_number, z_function]:
+            DialogBoxComponent('Ошибка',
+                               'Для отображения поверхности необходимо указать отрезки x и y, количество точек и функцию z-значений',
+                               'error')()
+            return
+
+        try:
+            x_section = list(map(int, x_section.split(',')))
+            y_section = list(map(int, y_section.split(',')))
+        except ValueError:
+            DialogBoxComponent('Ошибка', 'Некорректное значение отрезка', 'error')()
+            return
+
+        surface = Surface(self.selected_type, [width, height], name, x_section, y_section, int(points_number),
+                          z_function)
+        try:
+            SurfaceService.visualize_surface(surface)
+        except SurfaceServiceException as e:
             DialogBoxComponent('Ошибка', str(e), 'error')()
